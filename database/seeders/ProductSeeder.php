@@ -43,6 +43,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 5,
                 'max_quantity' => 50,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/SAM-S23-BLK/800/600',
             ],
             [
                 'name' => 'iPhone 15 Pro',
@@ -57,6 +58,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 3,
                 'max_quantity' => 30,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/APL-IP15P-SIL/800/600',
             ],
             [
                 'name' => 'Xiaomi Redmi Note 13',
@@ -71,6 +73,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 10,
                 'max_quantity' => 40,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/XIA-RN13-BLU/800/600',
             ],
 
             // Tablettes
@@ -87,6 +90,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 5,
                 'max_quantity' => 25,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/APL-IPADAIR-M2/800/600',
             ],
             [
                 'name' => 'Samsung Galaxy Tab S9',
@@ -101,6 +105,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 5,
                 'max_quantity' => 30,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/SAM-TABS9-GRY/800/600',
             ],
 
             // Laptops
@@ -117,6 +122,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 3,
                 'max_quantity' => 15,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/DEL-XPS15-I7/800/600',
             ],
             [
                 'name' => 'MacBook Pro 14"',
@@ -131,6 +137,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 2,
                 'max_quantity' => 10,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/APL-MBP14-M3P/800/600',
             ],
             [
                 'name' => 'HP ProBook 450',
@@ -145,6 +152,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 5,
                 'max_quantity' => 20,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/HP-PB450-I5/800/600',
             ],
 
             // Accessoires PC
@@ -161,6 +169,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 10,
                 'max_quantity' => 50,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/LOG-MXM3S-BLK/800/600',
             ],
             [
                 'name' => 'Clavier mécanique RGB',
@@ -175,6 +184,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 15,
                 'max_quantity' => 60,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/GAM-KBRGB-BLK/800/600',
             ],
             [
                 'name' => 'Webcam HD 1080p',
@@ -189,6 +199,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 8,
                 'max_quantity' => 40,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/WEB-HD1080-BLK/800/600',
             ],
 
             // Mobilier
@@ -205,6 +216,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 5,
                 'max_quantity' => 25,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/FUR-CHAIR-ERG/800/600',
             ],
             [
                 'name' => 'Bureau ajustable',
@@ -219,6 +231,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 3,
                 'max_quantity' => 15,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/FUR-DESK-ADJ/800/600',
             ],
 
             // Fournitures de bureau
@@ -235,6 +248,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 30,
                 'max_quantity' => 200,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/OFF-PAP-A4-500/800/600',
             ],
             [
                 'name' => 'Stylos bille - Lot de 10',
@@ -249,6 +263,7 @@ class ProductSeeder extends Seeder
                 'min_quantity' => 25,
                 'max_quantity' => 150,
                 'status' => 'active',
+                'image_url' => 'https://picsum.photos/seed/OFF-PEN-BLU-10/800/600',
             ],
         ];
 

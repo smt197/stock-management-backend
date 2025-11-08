@@ -15,14 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a test user
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-        ]);
-
         // Run seeders in order (respecting foreign key constraints)
         $this->call([
+            UserSeeder::class,          // Create users with different roles
             CategorySeeder::class,
             SupplierSeeder::class,
             ProductSeeder::class,

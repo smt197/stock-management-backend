@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -80,6 +81,7 @@ class ProductController extends Controller
             'quantity' => 'required|integer|min:0',
             'min_quantity' => 'required|integer|min:0',
             'max_quantity' => 'nullable|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_url' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive,discontinued',
         ]);
@@ -91,7 +93,17 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product = Product::create($validator->validated());
+        $data = $validator->validated();
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $data['image'] = $imagePath;
+        }
+
+        $product = Product::create($data);
 
         return response()->json([
             'success' => true,
@@ -146,6 +158,7 @@ class ProductController extends Controller
             'quantity' => 'sometimes|required|integer|min:0',
             'min_quantity' => 'sometimes|required|integer|min:0',
             'max_quantity' => 'nullable|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_url' => 'nullable|string|max:255',
             'status' => 'sometimes|required|in:active,inactive,discontinued',
         ]);
@@ -157,7 +170,22 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product->update($validator->validated());
+        $data = $validator->validated();
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('products', $imageName, 'public');
+            $data['image'] = $imagePath;
+        }
+
+        $product->update($data);
 
         return response()->json([
             'success' => true,
@@ -178,6 +206,11 @@ class ProductController extends Controller
                 'success' => false,
                 'message' => 'Produit non trouvé'
             ], 404);
+        }
+
+        // Delete image if exists
+        if ($product->image && Storage::disk('public')->exists($product->image)) {
+            Storage::disk('public')->delete($product->image);
         }
 
         $product->delete();

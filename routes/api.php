@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\ProductController;
@@ -18,23 +19,61 @@ use App\Http\Controllers\Api\StockMovementController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// Public API routes (you may want to add authentication later)
 Route::prefix('v1')->group(function () {
 
-    // Categories routes
-    Route::apiResource('categories', CategoryController::class);
+    // Public routes (Authentication) - Rate limited to 5 attempts per minute
+    Route::middleware(['throttle:auth'])->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+    });
 
-    // Suppliers routes
-    Route::apiResource('suppliers', SupplierController::class);
+    // Protected routes (require authentication)
+    Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
-    // Products routes
-    Route::apiResource('products', ProductController::class);
+        // Auth routes (accessible par tous les utilisateurs authentifiés)
+        Route::get('/me', [AuthController::class, 'me']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/refresh', [AuthController::class, 'refresh']);
 
-    // Stock Movements routes
-    Route::apiResource('stock-movements', StockMovementController::class);
+        // Routes READ-ONLY pour tous les rôles (viewer, user, manager, admin)
+        Route::middleware(['role:admin,manager,user,viewer'])->group(function () {
+            Route::get('/categories', [CategoryController::class, 'index']);
+            Route::get('/categories/{category}', [CategoryController::class, 'show']);
+            Route::get('/suppliers', [SupplierController::class, 'index']);
+            Route::get('/suppliers/{supplier}', [SupplierController::class, 'show']);
+            Route::get('/products', [ProductController::class, 'index']);
+            Route::get('/products/{product}', [ProductController::class, 'show']);
+            Route::get('/stock-movements', [StockMovementController::class, 'index']);
+            Route::get('/stock-movements/{stock_movement}', [StockMovementController::class, 'show']);
+        });
+
+        // Routes CREATE pour user, manager et admin
+        Route::middleware(['role:admin,manager,user'])->group(function () {
+            Route::post('/categories', [CategoryController::class, 'store']);
+            Route::post('/suppliers', [SupplierController::class, 'store']);
+            Route::post('/products', [ProductController::class, 'store']);
+            Route::post('/stock-movements', [StockMovementController::class, 'store']);
+        });
+
+        // Routes UPDATE pour manager et admin
+        Route::middleware(['role:admin,manager'])->group(function () {
+            Route::put('/categories/{category}', [CategoryController::class, 'update']);
+            Route::patch('/categories/{category}', [CategoryController::class, 'update']);
+            Route::put('/suppliers/{supplier}', [SupplierController::class, 'update']);
+            Route::patch('/suppliers/{supplier}', [SupplierController::class, 'update']);
+            Route::put('/products/{product}', [ProductController::class, 'update']);
+            Route::patch('/products/{product}', [ProductController::class, 'update']);
+            Route::put('/stock-movements/{stock_movement}', [StockMovementController::class, 'update']);
+            Route::patch('/stock-movements/{stock_movement}', [StockMovementController::class, 'update']);
+        });
+
+        // Routes DELETE uniquement pour admin
+        Route::middleware(['role:admin'])->group(function () {
+            Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+            Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy']);
+            Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+            Route::delete('/stock-movements/{stock_movement}', [StockMovementController::class, 'destroy']);
+        });
+    });
 
 });

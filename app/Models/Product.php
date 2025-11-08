@@ -20,6 +20,7 @@ class Product extends Model
         'quantity',
         'min_quantity',
         'max_quantity',
+        'image',
         'image_url',
         'status',
     ];
