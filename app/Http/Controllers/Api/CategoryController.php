@@ -13,15 +13,21 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $categories = Category::with(['parent', 'children', 'products'])
-            ->orderBy('name')
-            ->get();
+        $query = Category::with(['parent', 'children', 'products'])->orderBy('name');
+
+        // Pagination
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $total = $query->count();
+        $categories = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
 
         return response()->json([
             'success' => true,
-            'data' => $categories
+            'data' => $categories,
+            'total' => $total
         ]);
     }
 

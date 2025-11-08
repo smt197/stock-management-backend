@@ -47,11 +47,19 @@ class ProductController extends Controller
             $query->whereColumn('quantity', '<=', 'min_quantity');
         }
 
-        $products = $query->orderBy('name')->get();
+        $query->orderBy('name');
+
+        // Pagination
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $total = $query->count();
+        $products = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
 
         return response()->json([
             'success' => true,
-            'data' => $products
+            'data' => $products,
+            'total' => $total
         ]);
     }
 

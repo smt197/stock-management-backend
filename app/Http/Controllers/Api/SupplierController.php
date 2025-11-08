@@ -13,15 +13,21 @@ class SupplierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $suppliers = Supplier::with('products')
-            ->orderBy('name')
-            ->get();
+        $query = Supplier::with('products')->orderBy('name');
+
+        // Pagination
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $total = $query->count();
+        $suppliers = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
 
         return response()->json([
             'success' => true,
-            'data' => $suppliers
+            'data' => $suppliers,
+            'total' => $total
         ]);
     }
 

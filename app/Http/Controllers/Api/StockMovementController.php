@@ -38,11 +38,19 @@ class StockMovementController extends Controller
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        $movements = $query->orderBy('created_at', 'desc')->get();
+        $query->orderBy('created_at', 'desc');
+
+        // Pagination
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        $total = $query->count();
+        $movements = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
 
         return response()->json([
             'success' => true,
-            'data' => $movements
+            'data' => $movements,
+            'total' => $total
         ]);
     }
 
