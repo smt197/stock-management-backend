@@ -59,7 +59,7 @@ services:
       - key: FRONTEND_URL
         value: https://stock-management-front-wvmn.onrender.com
       - key: SEED_DATABASE
-        value: true
+        value: false
 
 databases:
   - name: stock-management-db
