@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StockMovementController;
+use App\Http\Controllers\Api\PurchaseOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/products/{product}', [ProductController::class, 'show']);
             Route::get('/stock-movements', [StockMovementController::class, 'index']);
             Route::get('/stock-movements/{stock_movement}', [StockMovementController::class, 'show']);
+            Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
+            Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show']);
         });
 
         // Routes CREATE pour user, manager et admin
@@ -53,6 +56,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/suppliers', [SupplierController::class, 'store']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::post('/stock-movements', [StockMovementController::class, 'store']);
+            Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
+            Route::post('/purchase-orders/{purchase_order}/receive', [PurchaseOrderController::class, 'receive']);
         });
 
         // Routes UPDATE pour manager et admin
@@ -65,6 +70,8 @@ Route::prefix('v1')->group(function () {
             Route::patch('/products/{product}', [ProductController::class, 'update']);
             Route::put('/stock-movements/{stock_movement}', [StockMovementController::class, 'update']);
             Route::patch('/stock-movements/{stock_movement}', [StockMovementController::class, 'update']);
+            Route::put('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update']);
+            Route::patch('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update']);
         });
 
         // Routes DELETE uniquement pour admin
@@ -73,6 +80,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy']);
             Route::delete('/products/{product}', [ProductController::class, 'destroy']);
             Route::delete('/stock-movements/{stock_movement}', [StockMovementController::class, 'destroy']);
+            Route::delete('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'destroy']);
         });
     });
 
