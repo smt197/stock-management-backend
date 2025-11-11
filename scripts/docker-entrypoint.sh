@@ -3,6 +3,12 @@ set -e
 
 echo "🚀 Starting Laravel application..."
 
+# Generate APP_KEY if not set
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+    echo "🔑 Generating APP_KEY..."
+    php artisan key:generate --force --no-interaction
+fi
+
 # Wait for database to be ready
 echo "⏳ Waiting for database..."
 sleep 5
