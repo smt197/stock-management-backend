@@ -20,6 +20,15 @@ use App\Http\Controllers\Api\PurchaseOrderController;
 |
 */
 
+// Health check endpoint for monitoring
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now()->toIso8601String(),
+        'service' => 'Stock Management API'
+    ]);
+});
+
 Route::prefix('v1')->group(function () {
 
     // Public routes (Authentication) - Rate limited to 5 attempts per minute
