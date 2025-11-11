@@ -29,10 +29,4 @@ fi
 
 echo "✅ Application ready!"
 
-# Start Nginx in the background
-echo "🌐 Starting Nginx..."
-nginx
-
-# Start PHP-FPM in the foreground
-echo "🐘 Starting PHP-FPM..."
-exec php-fpm
+# ServersideUp will automatically start Nginx and PHP-FPM

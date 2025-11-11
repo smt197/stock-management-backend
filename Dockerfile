@@ -41,10 +41,13 @@ RUN mkdir -p database && touch database/database.sqlite && chmod 664 database/da
 # Set proper permissions
 RUN chown -R www-data:www-data storage bootstrap/cache database
 
-# Copy entrypoint script
-COPY --chown=www-data:www-data scripts/docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Switch to root to copy entrypoint script
+USER root
+
+# Copy entrypoint script to ServersideUp's entrypoint.d directory
+COPY --chmod=755 scripts/docker-entrypoint.sh /etc/entrypoint.d/50-laravel-setup.sh
+
+# Switch back to www-data
+USER www-data
 
 EXPOSE 80
-
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
