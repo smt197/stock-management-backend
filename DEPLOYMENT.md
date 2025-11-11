@@ -35,10 +35,13 @@ Les variables suivantes sont configurées automatiquement:
 
 | Variable | Description |
 |----------|-------------|
-| `APP_KEY` | Clé d'application (générée automatiquement) |
-| `DB_*` | Connexion PostgreSQL (depuis la base Render) |
+| `APP_KEY` | Clé d'application Laravel (format base64) configurée dans render.yaml |
+| `DB_*` | Connexion PostgreSQL (depuis la base Render via `fromDatabase`) |
 | `FRONTEND_URL` | URL du frontend Angular |
 | `SANCTUM_STATEFUL_DOMAINS` | Domaines autorisés pour Sanctum |
+| `SEED_DATABASE` | `true` pour seeding auto, `false` en production normale |
+
+**Important**: L'APP_KEY doit être une clé Laravel valide générée avec `php artisan key:generate --show`.
 
 ### 4. Fonctionnalités
 
@@ -76,7 +79,7 @@ SEED_DATABASE=true
 
 4. **Votre API est en ligne** 🎉
    ```
-   https://stock-management-backend.onrender.com
+   https://stock-management-backend-j33r.onrender.com
    ```
 
 ### Méthode 2: Manuel
@@ -98,7 +101,7 @@ SEED_DATABASE=true
 
 ### 1. Health Check
 ```bash
-curl https://stock-management-backend.onrender.com/api/health
+curl https://stock-management-backend-j33r.onrender.com/api/health
 ```
 
 Réponse attendue:
@@ -113,23 +116,98 @@ Réponse attendue:
 ### 2. Test de l'API
 ```bash
 # Test de login
-curl -X POST https://stock-management-backend.onrender.com/api/v1/login \
+curl -X POST https://stock-management-backend-j33r.onrender.com/api/v1/login \
   -H "Content-Type: application/json" \
   -d '{"email": "admin@example.com", "password": "password"}'
 ```
 
 ## 🐛 Dépannage
 
-### Erreur 502 Bad Gateway
+### Problèmes courants et solutions
+
+#### 1. "No open HTTP ports detected" dans les logs
+
+**Symptôme**:
+```
+==> No open HTTP ports detected on 0.0.0.0, continuing to scan...
+```
+
+**Cause**: L'ENTRYPOINT Docker a été écrasé, empêchant ServersideUp de lancer Nginx.
+
+**Solution**:
+- Utiliser le système de hooks de ServersideUp via `/etc/entrypoint.d/`
+- Ne PAS écraser l'ENTRYPOINT dans le Dockerfile
+- Le script d'entrée doit être copié dans `/etc/entrypoint.d/50-laravel-setup.sh`
+
+```dockerfile
+# ✅ Correct
+COPY --chmod=755 scripts/docker-entrypoint.sh /etc/entrypoint.d/50-laravel-setup.sh
+
+# ❌ Incorrect - n'écrasez pas l'entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+```
+
+#### 2. "Unsupported cipher or incorrect key length"
+
+**Symptôme**:
+```
+RuntimeException: Unsupported cipher or incorrect key length
+```
+
+**Cause**: `APP_KEY` n'est pas au bon format Laravel.
+
+**Solution**:
+```bash
+# Générer une clé valide
+php artisan key:generate --show
+
+# Ajouter dans render.yaml
+- key: APP_KEY
+  value: base64:VotreCléGénérée...
+```
+
+**Important**: N'utilisez PAS `generateValue: true` dans render.yaml pour APP_KEY.
+
+#### 3. render.yaml invalide - "pserv service type cannot have an IP allow list"
+
+**Symptôme**: Erreur lors de la création du Blueprint.
+
+**Cause**: Base de données déclarée à la fois comme service ET dans la section databases.
+
+**Solution**: Déclarez la base UNIQUEMENT dans la section `databases:`, pas dans `services:`.
+
+```yaml
+# ✅ Correct
+databases:
+  - name: stock-management-db
+    plan: free
+
+# ❌ Incorrect - ne pas ajouter dans services
+services:
+  - type: pserv  # ❌ À supprimer
+```
+
+#### 4. MySQL vs PostgreSQL en production
+
+**Question**: Mon application locale utilise MySQL, est-ce compatible avec PostgreSQL en production ?
+
+**Réponse**: ✅ Oui, Laravel Eloquent est database-agnostic.
+- Aucune modification de code n'est nécessaire
+- Les migrations, requêtes Eloquent et relations fonctionnent identiquement
+- Évitez les requêtes SQL brutes spécifiques à MySQL (`DB::raw()` avec syntaxe MySQL)
+
+### Autres erreurs
+
+#### Erreur 502 Bad Gateway
 - Vérifiez les logs Render
 - Assurez-vous que les migrations sont réussies
 - Vérifiez la connexion à la base de données
 
-### Base de données non accessible
+#### Base de données non accessible
 - Vérifiez que la base PostgreSQL est bien créée
 - Vérifiez les variables `DB_*` dans les variables d'environnement
 
-### CORS errors
+#### CORS errors
 - Vérifiez `FRONTEND_URL` dans les variables d'environnement
 - Vérifiez `config/cors.php`
 - Vérifiez `SANCTUM_STATEFUL_DOMAINS`
@@ -168,17 +246,90 @@ Render redéploie automatiquement après chaque push sur la branche principale.
 
 ## 📱 URLs de Production
 
-- **API Backend**: `https://stock-management-backend.onrender.com`
+- **API Backend**: `https://stock-management-backend-j33r.onrender.com`
 - **Frontend**: `https://stock-management-front-wvmn.onrender.com`
-- **Health Check**: `https://stock-management-backend.onrender.com/api/health`
+- **Health Check**: `https://stock-management-backend-j33r.onrender.com/api/health`
+
+## 🎨 Configuration du Frontend
+
+Le frontend Angular doit être configuré pour utiliser le backend de production.
+
+### 1. Fichier environment.prod.ts
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: 'https://stock-management-backend-j33r.onrender.com/api/v1'
+};
+```
+
+### 2. Configuration angular.json
+
+Assurez-vous que le build de production utilise le bon fichier d'environnement :
+
+```json
+"configurations": {
+  "production": {
+    "fileReplacements": [
+      {
+        "replace": "src/environments/environment.ts",
+        "with": "src/environments/environment.prod.ts"
+      }
+    ],
+    ...
+  }
+}
+```
+
+### 3. Vérification
+
+Après déploiement du frontend, ouvrez la console du navigateur et vérifiez que les requêtes pointent vers :
+```
+https://stock-management-backend-j33r.onrender.com/api/v1/...
+```
+
+Et NON vers `http://localhost:8000/api/v1/...`
 
 ## 🎯 Prochaines étapes
+
+### Déjà configuré ✅
+
+- [x] Backend Laravel déployé sur Render avec Docker
+- [x] Base de données PostgreSQL configurée
+- [x] Migrations automatiques au démarrage
+- [x] Health check endpoint fonctionnel
+- [x] CORS configuré pour le frontend
+- [x] Frontend Angular déployé
+- [x] Authentification Sanctum opérationnelle
+
+### À faire
 
 1. [ ] Configurer les backups automatiques de la base de données
 2. [ ] Mettre en place un monitoring avec UptimeRobot
 3. [ ] Configurer un domaine personnalisé (optionnel)
 4. [ ] Mettre en place un CDN pour les assets (optionnel)
+5. [ ] Configurer les logs persistants
+6. [ ] Mettre en place un système de notification (email)
 
 ---
 
-**Note**: Le plan gratuit de Render met en veille les services après 15 minutes d'inactivité. Le premier accès après la mise en veille peut prendre 30-60 secondes.
+## 📝 Notes importantes
+
+### Plan gratuit Render
+- Les services se mettent en veille après **15 minutes d'inactivité**
+- Le premier accès après la mise en veille prend **30-60 secondes** (cold start)
+- La base de données PostgreSQL gratuite a une limite de **1 GB** de stockage
+
+### Compatibilité bases de données
+- ✅ Laravel Eloquent est compatible MySQL ↔ PostgreSQL sans modification de code
+- ✅ Les migrations fonctionnent sur les deux systèmes
+- ⚠️ Évitez les requêtes SQL brutes spécifiques à un SGBD
+
+### ServersideUp
+- L'image `serversideup/php:8.3-fpm-nginx` gère automatiquement Nginx et PHP-FPM
+- Utilisez le système de hooks `/etc/entrypoint.d/` pour les scripts de démarrage
+- Ne surchargez jamais l'ENTRYPOINT par défaut
+
+---
+
+**Dernière mise à jour**: 2025-11-11
