@@ -17,7 +17,7 @@ services:
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://stock-management-backend.onrender.com
+        value: https://stock-management-backend-j33r.onrender.com
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
