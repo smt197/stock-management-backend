@@ -61,8 +61,8 @@ Route::prefix('v1')->group(function () {
 
             // Sales routes - Read
             Route::get('/sales', [SaleController::class, 'index']);
-            Route::get('/sales/{sale}', [SaleController::class, 'show']);
             Route::get('/sales/statistics', [SaleController::class, 'statistics']);
+            Route::get('/sales/{sale}', [SaleController::class, 'show']);
         });
 
         // Routes CREATE pour user, manager et admin
