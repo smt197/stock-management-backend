@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StockMovementController;
 use App\Http\Controllers\Api\PurchaseOrderController;
+use App\Http\Controllers\Api\SaleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/stock-movements/{stock_movement}', [StockMovementController::class, 'show']);
             Route::get('/purchase-orders', [PurchaseOrderController::class, 'index']);
             Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show']);
+
+            // Sales routes - Read
+            Route::get('/sales', [SaleController::class, 'index']);
+            Route::get('/sales/{sale}', [SaleController::class, 'show']);
+            Route::get('/sales/statistics', [SaleController::class, 'statistics']);
         });
 
         // Routes CREATE pour user, manager et admin
@@ -67,6 +73,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/stock-movements', [StockMovementController::class, 'store']);
             Route::post('/purchase-orders', [PurchaseOrderController::class, 'store']);
             Route::post('/purchase-orders/{purchase_order}/receive', [PurchaseOrderController::class, 'receive']);
+
+            // Sales routes - Create
+            Route::post('/sales', [SaleController::class, 'store']);
         });
 
         // Routes UPDATE pour manager et admin
@@ -90,6 +99,9 @@ Route::prefix('v1')->group(function () {
             Route::delete('/products/{product}', [ProductController::class, 'destroy']);
             Route::delete('/stock-movements/{stock_movement}', [StockMovementController::class, 'destroy']);
             Route::delete('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'destroy']);
+
+            // Sales routes - Cancel (admin only, car remet le stock)
+            Route::post('/sales/{sale}/cancel', [SaleController::class, 'cancel']);
         });
     });
 
