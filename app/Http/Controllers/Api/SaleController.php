@@ -177,10 +177,9 @@ class SaleController extends Controller
                 // Créer un mouvement de stock
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'type' => 'sale',
+                    'type' => 'out',
                     'quantity' => -$itemData['quantity'],
-                    'reference_type' => 'App\Models\Sale',
-                    'reference_id' => $sale->id,
+                    'reference' => "Sale-{$sale->id}",
                     'notes' => "Vente {$sale->sale_number}",
                     'user_id' => auth()->id(),
                 ]);
@@ -265,10 +264,9 @@ class SaleController extends Controller
                     // Créer un mouvement de stock inverse
                     StockMovement::create([
                         'product_id' => $product->id,
-                        'type' => 'adjustment',
+                        'type' => 'in',
                         'quantity' => $item->quantity,
-                        'reference_type' => 'App\Models\Sale',
-                        'reference_id' => $sale->id,
+                        'reference' => "Sale-Cancel-{$sale->id}",
                         'notes' => "Annulation vente {$sale->sale_number}",
                         'user_id' => auth()->id(),
                     ]);
